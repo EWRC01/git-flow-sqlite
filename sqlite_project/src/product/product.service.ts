@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -21,8 +21,16 @@ export class ProductService {
     return this.productRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+
+    const productFound = await this.productRepository.findOne(  {where: {
+      id
+    }})
+
+    if (!productFound) {
+      return new HttpException('User not Found', HttpStatus.NOT_FOUND)
+    }
+    return productFound
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
