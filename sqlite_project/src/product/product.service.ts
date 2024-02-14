@@ -34,10 +34,23 @@ export class ProductService {
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    
+    const productFound = await this.productRepository.findOne(  {where: {
+      id
+    }})
+
+    if(!productFound) {
+      return new HttpException('Product not Found', HttpStatus.NOT_FOUND);
+    }
+    
+    return this.productRepository.destroy({
+      where: {
+        id
+      }
+    })
   }
 }
