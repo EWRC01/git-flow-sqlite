@@ -1,8 +1,11 @@
+// product.service.ts
+
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './entities/product.entity';
+import { Review } from 'src/review/entities/review.entity';
 
 @Injectable()
 export class ProductService {
@@ -16,52 +19,39 @@ export class ProductService {
   }
 
   async findAll() {
-    return await this.productRepository.findAll();
+    return await this.productRepository.findAll({
+      include: [Review],  // Include reviews when fetching products
+    });
   }
 
   async findOne(id: number) {
-    const productFound = await this.productRepository.findOne({
-      where: {
-        id,
-      },
+    return await this.productRepository.findByPk(id, {
+      include: [Review],  // Include reviews when fetching a product
     });
-
-    if (!productFound) {
-      return new HttpException('User not Found', HttpStatus.NOT_FOUND);
-    }
-    return productFound;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const productFound = await this.productRepository.findOne({
-      where: { id },
-    });
+    const productFound = await this.productRepository.findByPk(id);
 
     if (!productFound) {
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
 
-    await this.productRepository.update(updateProductDto, { where: { id } });
+    await productFound.update(updateProductDto);
 
-    const updatedProduct = await this.productRepository.findByPk(id);
-    return updatedProduct;
+    // Fetch the updated product with associated reviews
+    return this.productRepository.findByPk(id, {
+      include: [Review],
+    });
   }
 
   async remove(id: number) {
-    const productFound = await this.productRepository.findOne({
-      where: {
-        id,
-      },
-    });
+    const productFound = await this.productRepository.findByPk(id);
 
     if (!productFound) {
-      return new HttpException('Product not Found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
 
-    return this.productRepository.destroy({
-      where: {
-        id,
-      },
-    });
+    return await productFound.destroy();
   }
 }
