@@ -16,10 +16,9 @@ export class Product extends Model {
     @Column
     price: string;
 
-    @HasOne(() => ProductDetail)
+    @HasOne(() => ProductDetail, 'productId')
     productDetail: ProductDetail;
 
-    @HasMany(() => Review)  // Update to HasMany for one-to-many relationship
-    reviews: Review[];  // Update to plural 'reviews'
-
+    @HasMany(() => Review)
+    reviews: Review[];
 }

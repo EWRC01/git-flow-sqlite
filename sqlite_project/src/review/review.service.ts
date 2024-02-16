@@ -28,8 +28,8 @@ export class ReviewService {
     return review;
   }
 
-  findAll() {
-    return this.reviewRepository.findAll();
+  async findAll() {
+    return await this.reviewRepository.findAll();
   }
 
   async findOne(id: number) {

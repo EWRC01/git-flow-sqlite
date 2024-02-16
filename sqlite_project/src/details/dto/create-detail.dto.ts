@@ -1,1 +1,4 @@
-export class CreateDetailDto {}
+export class CreateDetailDto {
+
+    details?: string
+}

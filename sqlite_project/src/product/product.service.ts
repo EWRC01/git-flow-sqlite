@@ -6,27 +6,30 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './entities/product.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { ProductDetail } from 'src/details/entities/product-detail.entity';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product)
-    private productRepository: typeof Product,
+    private readonly productRepository: typeof Product,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    return await this.productRepository.create(createProductDto as any);
+    const product=  await this.productRepository.create(createProductDto as any);
+    //await this.detailRepository.create(product.id, createProductDto as any);
+    return product
   }
 
   async findAll() {
     return await this.productRepository.findAll({
-      include: [Review],  // Include reviews when fetching products
+      include: [Review, ProductDetail],  // Include reviews when fetching products
     });
   }
 
   async findOne(id: number) {
     return await this.productRepository.findByPk(id, {
-      include: [Review],  // Include reviews when fetching a product
+      include: [Review, ProductDetail],  // Include reviews when fetching a product
     });
   }
 
@@ -41,7 +44,7 @@ export class ProductService {
 
     // Fetch the updated product with associated reviews
     return this.productRepository.findByPk(id, {
-      include: [Review],
+      include: [Review, ProductDetail],
     });
   }
 
